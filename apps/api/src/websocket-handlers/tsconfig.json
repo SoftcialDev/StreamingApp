@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                       /* Modern Node LTS target */
+    "module": "CommonJS",                     /* Lambda requires CommonJS */
+    "lib": ["ES2020"],                        /* Standard library features */
+    "outDir": "./dist",                       /* Emit compiled JS here */
+    "rootDir": "./",                          /* Root for input files */
+    "strict": true,                           /* Enable all strict checks */
+    "esModuleInterop": true,                  /* Allow default imports from CJS modules */
+    "forceConsistentCasingInFileNames": true, /* Prevent case mismatches */
+    "skipLibCheck": true                      /* Speed up by skipping declaration checks */
+  },
+  "include": [
+    "./connect/**/*.ts",
+    "./disconnect/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

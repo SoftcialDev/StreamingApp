@@ -1,0 +1,22 @@
+{
+  "name": "electron-publisher",
+  "version": "1.0.0",
+  "description": "Electron publisher with Cognito Hosted UI and AWS KVS streaming",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "tsc",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "aws-sdk": "^2.1357.0",
+    "@streaming-app/common": "*"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.0.0",
+    "typescript": "^5.1.6",
+    "@types/ws": "^8.18.1"
+  }
+}
