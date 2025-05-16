@@ -1,27 +1,22 @@
 {
   "compilerOptions": {
-    /* Versión de JS de salida */
+    /* Target modern Node.js and use CommonJS modules */
     "target": "ES2020",
+    "module": "CommonJS",
 
-    /* Módulos usando import/export */
-    "module": "ESNext",
-    "moduleResolution": "node",
-
-    /* Carpeta de salida y raíz de fuentes */
+    /* Where to find source and where to output compiled files */
+    "rootDir": ".",
     "outDir": "dist",
-    "rootDir": "src",
 
-    /* Chequeos estrictos y atajos de interoperabilidad */
+    /* Ensure strict type-checking and interoperability */
     "strict": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
-    /* Omite chequeos de tipos en d.ts externos (node_modules) */
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
 
-    /* Tipos globales y bibliotecas a incluir */
-    "lib": ["ES2020"],
-    "types": ["node", "ws"]
+    /* Include Node.js built-ins and testing globals */
+    "types": ["node", "jest"]
   },
-  "include": ["src"]
+  "include": ["src", "integration-test", "integration-test/streams.int.test.ts"],
+  "exclude": ["node_modules", "dist"]
 }
