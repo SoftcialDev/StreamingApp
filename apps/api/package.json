@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-sdk/client-kinesis-video": "^3.810.0",
+    "@aws-sdk/client-kinesis-video-archived-media": "^3.810.0",
+    "@aws-sdk/client-kinesis-video-signaling": "^3.808.0",
+    "@aws-sdk/protocol-http": "^3.370.0",
+    "@aws-sdk/signature-v4": "^3.370.0",
+    "aws-sdk": "^2.1485.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "ioredis": "^5.6.1",
+    "ws": "^8.18.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.18",
+    "@types/ws": "^8.18.1",
+    "rimraf": "^2.7.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
