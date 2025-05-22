@@ -1,5 +1,3 @@
-// packages/common/src/auth/login.ts
-
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -32,7 +30,6 @@ export async function login(
   username: string,
   password: string
 ): Promise<string> {
-  // Build the auth parameters
   const params: InitiateAuthCommandInput = {
     AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
     ClientId: process.env.COGNITO_CLIENT_ID!,
@@ -42,11 +39,9 @@ export async function login(
     },
   };
 
-  // Send the request to Cognito
   const command = new InitiateAuthCommand(params);
   const response = await userPoolClient.send(command);
 
-  // Extract and return the JWT access token
   const token = response.AuthenticationResult?.AccessToken;
   if (!token) {
     throw new Error("Cognito login failed: no AccessToken returned");

@@ -4,6 +4,7 @@ import {
   GetCredentialsForIdentityCommand
 } from "@aws-sdk/client-cognito-identity";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const identityClient = new CognitoIdentityClient({
@@ -18,35 +19,36 @@ const identityClient = new CognitoIdentityClient({
  * @returns AWS credentials scoped by the Identity Pool’s Authenticated Role
  */
 export async function getAwsCredentials(idToken: string) {
-  // 1. Build the Logins map once (input to both commands)
-  const logins = {
-    // Map the User Pool issuer to the token
-    [`cognito-idp.${process.env.AWS_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}`]:
-      idToken
-  };
+  // 1. Build the full provider key: issuer + ':' + App Client ID
+  const region     = process.env.AWS_REGION!;
+  const userPoolId = process.env.COGNITO_USER_POOL_ID!;
+  const clientId   = process.env.COGNITO_CLIENT_ID!;
+  const provider   = `cognito-idp.${region}.amazonaws.com/${userPoolId}:${clientId}`;
 
-  // 2. Call GetIdCommand with Logins to retrieve the IdentityId
+  // 2. Build the Logins map with the correct key
+  const logins = { [provider]: idToken };
+
+  // 3. Retrieve the Cognito IdentityId
   const getIdRes = await identityClient.send(
     new GetIdCommand({
       IdentityPoolId: process.env.COGNITO_IDENTITY_POOL_ID!,
       Logins: logins
     })
   );
-  const identityId = getIdRes.IdentityId!;  // unique identifier, e.g. "us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" :contentReference[oaicite:0]{index=0}
+  const identityId = getIdRes.IdentityId!;
 
-  // 3. Call GetCredentialsForIdentityCommand with the same Logins
+  // 4. Exchange for AWS temporary credentials
   const credsRes = await identityClient.send(
     new GetCredentialsForIdentityCommand({
       IdentityId: identityId,
       Logins: logins
     })
   );
-  // credsRes.Credentials contains { AccessKeyId, SecretKey, SessionToken, Expiration } :contentReference[oaicite:1]{index=1}
 
   return {
-    accessKeyId: credsRes.Credentials!.AccessKeyId!,
+    accessKeyId:     credsRes.Credentials!.AccessKeyId!,
     secretAccessKey: credsRes.Credentials!.SecretKey!,
-    sessionToken: credsRes.Credentials!.SessionToken!,
-    expiration: credsRes.Credentials!.Expiration!
+    sessionToken:    credsRes.Credentials!.SessionToken!,
+    expiration:      credsRes.Credentials!.Expiration!
   };
 }

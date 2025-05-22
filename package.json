@@ -5,18 +5,22 @@
     "apps/*",
     "packages/*"
   ],
-  "devDependencies": {
-    "turbo": "^1.13.4"
-  },
-  "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "start": "turbo run start --filter=api"
-  },
   "version": "1.0.0",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "scripts": {
+    "dev": "npm --workspace=apps/publisher run dev",
+    "dev:api": "npm --workspace=apps/api run dev",
+    "dev:web": "npm --workspace=apps/web run dev",
+    "dev:publisher": "npm --workspace=apps/publisher run dev",
+    "dev:all": "concurrently -k -n API,WEB,PUB \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:publisher\"",
+    "build": "turbo run build",
+    "clean": "rimraf node_modules && turbo run clean",
+    "start": "turbo run start --filter=apps/api"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.812.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "turbo": "^1.13.4"
+  }
 }
