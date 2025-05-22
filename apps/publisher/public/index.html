@@ -1,21 +1,31 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <title>Publisher Login</title>
-</head>
+<head><meta charset="UTF-8"/><title>Login</title></head>
 <body>
+  <button id="login-btn">Login with Cognito</button>
+
   <script>
-    // Immediately start the Cognito Hosted UI flow
-    (function(){
-      const { COGNITO_DOMAIN, CLIENT_ID, REDIRECT_URI } = {
-        COGNITO_DOMAIN: "__COGNITO_DOMAIN__",       // e.g. your-pool.auth.us-east-1.amazoncognito.com
-        CLIENT_ID: "2allgmufokomdd4qkunn2l6p3q",
-        REDIRECT_URI: "__REDIRECT_URI__"            // file://path/to/public/callback.html
-      };
-      const url = `https://${COGNITO_DOMAIN}/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&identity_provider=Microsoft`;
-      window.location.replace(url);
-    })();
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const { COGNITO_DOMAIN, COGNITO_CLIENT_ID, REDIRECT_URI } = window.electronAPI.env;
+      const { verifier, challenge } = await window.electronAPI.generatePKCECodes();
+      await window.electronAPI.saveVerifier(verifier);
+      localStorage.setItem('pkce_verifier','verifier' );
+
+      const params = new URLSearchParams({
+        response_type:         'code',
+        client_id:             COGNITO_CLIENT_ID,
+        redirect_uri:          REDIRECT_URI,
+        code_challenge:        challenge,
+        code_challenge_method: 'S256',
+        scope:                 'openid profile email',
+        identity_provider:     'MicrosoftOIDC'
+      });
+
+      window.location.replace(
+        `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`
+      );
+    });
   </script>
 </body>
 </html>

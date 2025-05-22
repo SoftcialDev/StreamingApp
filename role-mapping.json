@@ -1,0 +1,16 @@
+{
+  "cognito-idp.us-east-1.amazonaws.com/us-east-1_v9QJxnaC8:2allgmufokomdd4qkunn2l6p3q": {
+    "Type": "Rules",
+    "AmbiguousRoleResolution": "AuthenticatedRole",
+    "RulesConfiguration": {
+      "Rules": [
+        {
+          "Claim":     "cognito:groups",
+          "MatchType": "Contains",
+          "Value":     "Admins",
+          "RoleARN":   "arn:aws:iam::160002178149:role/Cognito_streaming-app-identity-poolAuth_Role"
+        }
+      ]
+    }
+  }
+}

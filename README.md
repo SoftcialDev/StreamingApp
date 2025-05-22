@@ -1,125 +1,65 @@
-# 🎥 Streaming Application Monorepo
+# StreamingApp Monorepo
 
-This monorepo hosts a real-time streaming application comprising:
+This repository contains three applications and a shared library:
 
-* **Frontend**: Built with React, Tailwind CSS, and Vite.
-* **Backend**: Developed using Express.js, integrating Amazon Kinesis Video Streams and Redis.
-* **Machine Learning**: Incorporates TensorFlow for motion detection, with plans for posture recognition using a separate Python service.
-* **Monorepo Management**: Managed using Turborepo for efficient builds and task running.
-
----
-
-## 🗂️ Project Structure
-
-```plaintext
-streaming-app/
-├── apps/
-│   ├── frontend/       # React + Tailwind CSS (Vite)
-│   └── backend/        # Express.js API with Kinesis and Redis
-├── packages/           # Shared utilities and configurations
-├── docker/             # Docker configurations
-├── .gitignore
-├── package.json
-├── turbo.json
-└── README.md
-```
-
-
+- **`apps/api`**: Backend REST & WebSocket API for authentication, stream registration, and punch-in/out events.  
+- **`apps/publisher`**: Electron desktop app that captures local camera, authenticates via Cognito Hosted UI (Microsoft 365), and streams video to AWS Kinesis Video Streams based on remote punch commands.  
+- **`apps/web`**: React + Tailwind single-page app for admins to view live HLS feeds and open Microsoft Teams chats per publisher.  
+- **`packages/common`**: Shared TypeScript utilities for AWS clients (Cognito, KVS, HLS, Redis), JWT verification, and more.
 
 ---
 
-## 🚀 Getting Started
+## Architecture & AWS Resources
 
-### Prerequisites
+1. **Cognito**  
+   - **User Pool** with Microsoft 365 identity provider (Hosted UI) for admins.  
+   - **Identity Pool** (unauthenticated) to exchange tokens for AWS credentials in the publisher.  
+2. **API Gateway**  
+   - **REST** endpoints (`/auth`, `/streams/register`, `/streams/online`, `/streams/unregister`).  
+   - **WebSocket** routes (`$connect`, `$disconnect`, `in`, `out`) for the publisher’s punch channel.  
+3. **Lambda Functions**  
+   - **WebSocket handlers** (connect/disconnect) store/manage connection IDs in DynamoDB and trigger punch-out cleanup.  
+   - **Auth & Streams** controllers in `apps/api` handle REST logic, backed by KVS and Redis.  
+4. **DynamoDB**  
+   - Table **`WebSocketConnections`** for mapping `email ↔ connectionId`.  
+5. **Kinesis Video Streams** (us-east-1)  
+   - Dynamically created per publisher (stream name = user’s email).  
+6. **ElastiCache (Redis)**  
+   - Optional session store for online/offline TTL as backup to DynamoDB.  
+7. **S3**  
+   - Bucket **`streaming-app-installers-bucket`** for Electron auto-updates via `electron-updater`.  
+8. **CloudWatch**  
+   - Log groups & alarms for all Lambdas and API Gateway errors.
 
-* **Node.js** (v16 or higher)
-* **npm** (v7 or higher)
-* **Docker** (for local Redis and future Python ML services)([docs.gitlab.com][1], [GitHub][2])
+---
 
-### Installation
+## Getting Started
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/yourusername/streaming-app.git
-   cd streaming-app
-   ```
-
-
-
-2. **Install dependencies**:
-
+1. **Install dependencies**  
    ```bash
    npm install
-   ```
+   cd apps/api && npm install
+   cd ../publisher && npm install
+   cd ../web && npm install
 
+2. **Configure AWS resources** (via AWS CLI / CloudFormation): Cognito pools, API Gateway, DynamoDB, KVS, Redis, S3.
+3. **Environment**
 
-3. **Set up environment variables**:
+   * Copy `.env.example` in each app and fill in your AWS region, Cognito IDs, API URLs, S3 bucket names, etc.
+4. **Develop**
 
-   Create `.env` files in both `apps/frontend` and `apps/backend` directories with the necessary configurations.
+   * **API**: `cd apps/api && npm run dev`
+   * **Publisher**: `cd apps/publisher && npm run start`
+   * **Web**: `cd apps/web && npm run dev`
+5. **Build & Deploy**
 
----
+   * **API** Docker or Serverless deploy of `apps/api`.
+   * **Publisher**: `apps/publisher/scripts/build-installer.sh`.
+   * **Web**: Build static and serve from S3, CloudFront, or your API layer.
 
-## 🧪 Development
+## Monorepo Tooling
 
-To start the development servers for both frontend and backend:
-
-```bash
-npm run dev
-```
-
-
-
-This will concurrently run:
-
-* **Frontend**: Accessible at `http://localhost:5173`
-* **Backend**: Accessible at `http://localhost:3001`
-
----
-
-## 🏗️ Building for Production
-
-To build both applications:
-
-```bash
-npm run build
-```
-
-
-
-To start the backend server:
-
-```bash
-npm run start
-```
-
-
-
----
-
-## 🐳 Docker Setup
-
-For local development with Redis:
-
-```bash
-docker run --name redis-local -p 6379:6379 -d redis
-```
-
-
-
-Ensure that the backend connects to the correct Redis instance based on the environment (local or AWS).
-
-
-## 🧠 Machine Learning Integration(To be implemented)
-
-* **Motion Detection**: Implemented using TensorFlow\.js within the frontend.
-* **Posture Recognition**: Planned using a separate Python application with TensorFlow, communicating with the backend via API endpoints.
-
-
-## 📦 Turborepo Scripts
-
-* `dev`: Runs both frontend and backend in development mode.
-* `build`: Builds both applications for production.
-* `start`: Starts the backend server.
-* `clean`: Cleans build artifacts.([Distributed][3], [Reddit][4], [help.tempo.io][5])
+* **Turbo** for task orchestration (`turbo.json`).
+* **TypeScript project references** across `packages/common` and the apps.
+* **Jest** & **aws-sdk-client-mock** for unit & integration tests under `apps/api/integration-test`.
 

@@ -8,15 +8,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-
-    // Add this line:
     "types": ["node", "jest"]
   },
   "include": [
     "src",
     "src/scripts/getToken.ts",
     "src/types",
-    // Include your tests if they aren’t under src:
     "src/**/*.test.ts"
   ],
   "exclude": ["node_modules", "dist"]
